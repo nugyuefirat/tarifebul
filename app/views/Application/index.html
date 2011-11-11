@@ -1,0 +1,96 @@
+#{extends 'main.html' /} #{set title:'Tarife Bul' /}
+
+<table>
+	<tr>
+		<td>Ayda ortalama <input type="text" id="tbAramaDk" 
+			class="erasable" style="width: 40px"/> dakika arama yapiyorum.
+		</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Ayda ortalama <input type="text" id="tbSMSSayi" 
+			class="erasable" style="width: 40px"/> adet SMS gonderiyorum.
+		</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Agirlikli olarak aradigim ve mesaj gonderdigim operator: 
+		<select id="selYogunOperator">
+		<option value="-1">Degisiyor</option>
+		#{list items:operatorler, as:'operator'}
+               <option value="${operator.id}">${operator.operatorAdi}</option>
+        #{/list}		
+		</select>
+		</td>
+		<td>
+		</td>
+	</tr>
+	<tr>
+		<td>Cep telefonumdan aylik ortalama internet kullanimim: 
+		<select id="selInternetKullanim"> 
+		<option value="0">Internet kullanmiyorum.</option>
+		<option value="100">100 MB</option>
+		<option value="500">101-500 MB</option>
+		<option value="1000">500 MB-1 GB</option>
+		<option value="2000">1 GB-2 GB</option>
+		<option value="4000">2 GB Ustu</option>
+		</select> 		
+		</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Durumum bu durumlardan birine uyuyor:
+		<select id="selKisit">
+		<option value="-1">Seciniz</option>
+		<option value="-1">Hicbiri</option>
+		#{list items:kisitlar, as:'kisit'}
+               <option value="${kisit.id}">${kisit.kisitAdi}</option>
+        #{/list}		
+		</select>
+		</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Su anda iletisim icin ayda ortalama <input type="text" id="tbMevcutHarcama" 
+			class="erasable" style="width: 40px"/> TL harciyorum. </td>
+		<td></td>
+	</tr>
+	<tr>
+		<td></td>
+		<td><input type="button" id="btnTarifeBul" style="width: 150px; height: 40px" value="Tarife Bul!" /></td>
+	</tr>
+</table>
+
+<ul id="tarifeList"></ul>
+
+<script type="text/javascript">
+$("#btnTarifeBul").click(function(){
+	var aramaDk = $('#tbAramaDk').val();
+	var smsSayisi = $('#tbSMSSayi').val();
+	var yogunOperator = $('#selYogunOperator').val();
+	var internetKullanim= $('#selInternetKullanim').val();
+	var kisit= $('#selKisit').val();
+	var mevcutHarcama = $('#tbMevcutHarcama').val();
+		
+	$.ajax({
+		type: 'GET',
+		url: "@{Application.tarifeBul()}",
+		dataType: "json",
+		data: {
+			yapilanKonusmaSuresi: aramaDk,				
+			konusmaMesajYogunOperatorId: yogunOperator,
+			gonderilenSMSSayisi: smsSayisi,
+			internetKullanimMiktari: internetKullanim,
+			kisitId: kisit,
+			mevcutHarcama: mevcutHarcama,
+		},
+		success: function (data) {
+			sonucSayi        = data.length;
+			for(i=0;i<sonucSayi;i++)
+				$("#tarifeList").append("<li>"+data[i].tarifeAdi+"-"+data[i].sabitUcret+"</li>");
+			
+		}			
+	});	
+	return false;	
+});
+</script>
